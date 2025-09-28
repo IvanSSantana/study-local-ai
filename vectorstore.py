@@ -1,21 +1,43 @@
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_chroma import Chroma
+from langchain_ollama.embeddings import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import List
+from langchain.schema import Document
+import os
+
+# Cria a pasta que armazenará o vectorstore
+DB_PATH = "local_vectorstore"
+if not os.path.exists(DB_PATH):
+    os.makedirs(DB_PATH)
 
 embedding_llm = OllamaEmbeddings(
-    model="snowflake-arctic-embed:137m" 
-)
+    model="snowflake-arctic-embed:33m" 
+) # type: ignore
 
-# CONFIGURANDO ALGORITMO DE EMBEDDING
-splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=30)
-chunks = splitter.split_documents(docs) # TODO: Aguardando criação do método de carregar PDFs
+def save_embeddings(doc: List[Document]) -> None:
+    # CONFIGURANDO ALGORITMO DE EMBEDDING
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=80) 
+    chunks = splitter.split_documents(doc)
 
-def save_embeddings(chunks: str, embeddings ) -> None:
-    vectorstore = FAISS.from_documents(chunks, embeddings) # Algoritmo calcula similaridade vetorial
-    vectorstore.save_local("local_db") 
+    # Cria o banco Chroma local
+    vectorstore = Chroma.from_documents(
+        chunks,
+        embedding_llm,
+        persist_directory=DB_PATH
+    )
 
-vectorstore = FAISS.load_local("local_db", embedding_llm)
-retriever = vectorstore.as_retriever(
-    search_type="similarity_score_threshold",
-    search_kwargs={"score_threshold": 0.3, "k": 4}
-)       
+    print("INFO - Arquivo salvo na IA com sucesso!")
+
+def load_vectorstore():
+    # Carrega o banco Chroma local
+    vectorstore = Chroma(
+        persist_directory=DB_PATH,
+        embedding_function=embedding_llm
+    )
+
+    retriever = vectorstore.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs={"score_threshold": 0.4, "k": 5}
+    )
+
+    return (vectorstore, retriever)

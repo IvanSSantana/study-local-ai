@@ -5,6 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "chromadb>=1.1.0",
+    "langchain>=0.3.27",
+    "langchain-chroma>=0.2.6",
+    "langchain-community>=0.3.30",
+    "langchain-ollama>=0.3.8",
+    "ollama>=0.6.0",
     "pdfplumber>=0.11.7",
+    "pytest>=8.4.2",
     "typer>=0.19.2",
 ]
