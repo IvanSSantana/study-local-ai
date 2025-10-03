@@ -6,7 +6,7 @@ from study import generate_summarize, generate_quiz, answer_asking
 import pytest
 
 # Texto de exemplo para os testes
-texto = """
+text = """
 A fotossíntese é um processo biológico realizado por plantas, algas e algumas bactérias.
 Nesse processo, a energia da luz solar é usada para converter dióxido de carbono e água
 em glicose e oxigênio. Esse processo é fundamental para a vida na Terra, pois fornece o
@@ -15,7 +15,7 @@ oxigênio que respiramos e a base da cadeia alimentar.
 
 def test_summarize(capsys):
     print("\n=== TESTE RESUMO ===")
-    resumo = generate_summarize(texto)
+    resumo = generate_summarize(text)
     print(resumo)
 
     output = capsys.readouterr()
@@ -23,7 +23,7 @@ def test_summarize(capsys):
 
 def test_quiz(capsys):
     print("\n=== TESTE QUIZ ===")
-    quiz = generate_quiz(texto, num_perguntas=3)
+    quiz = generate_quiz(text, num_questions=3)
     for i, pergunta in enumerate(quiz, 1):
         print(f"{i}. {pergunta}")
 
@@ -32,7 +32,7 @@ def test_quiz(capsys):
 
 def test_asking(capsys):
     print("\n=== TESTE PERGUNTA LIVRE ===")
-    resposta = answer_asking("Qual é a importância da fotossíntese?", texto)
+    resposta = answer_asking("Qual é a importância da fotossíntese?", text)
     print(resposta)
 
     output = capsys.readouterr()

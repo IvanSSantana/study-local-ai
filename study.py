@@ -1,16 +1,29 @@
 """
-study.py
 Módulo de estudo interativo.
-Aqui ficam as funções que conversam com o modelo de IA (via Ollama + LangChain).
+Aqui ficam as funções e nodes que conversam com o modelo de IA (via Ollama + LangChain + LangGraph).
 """
 
-from typing import List
+from llm import llm_study, screening, prompt_rag
+from typing import List, TypedDict, Optional, Dict
 from langchain_ollama.llms import OllamaLLM
 from langchain.prompts import ChatPromptTemplate
 import typer
 
-# Instância do modelo local
-llm = OllamaLLM(model="llama2")
+class AgentState(TypedDict):
+    user_message: str
+    screening: Dict
+    response: Optional[str]
+    sucess_rag: bool
+    final_action: str
+
+def node_screening(state: AgentState) -> AgentState:
+    print("Executando nó de triagem...")     
+    return {"screening": screening(state["user_message"])}
+
+def node_summarize(state: AgentState) -> AgentState:
+    print("Executando nó de resumo...")
+    response_rag = prompt_rag(state["user_message"])
+    #TODO: Concluir após configuração completa do LLM
 
 def generate_summarize(text: str) -> str:
     """
@@ -20,7 +33,7 @@ def generate_summarize(text: str) -> str:
         ("system", "Você é um assistente que cria resumos claros e objetivos."),
         ("user", f"Resuma o seguinte texto em tópicos:\n\n{text}")
     ])
-    chain = prompt | llm
+    chain = prompt | llm_study
     typer.echo("Resumo gerado com sucesso!")
     return chain.invoke({})
 
@@ -32,7 +45,7 @@ def generate_quiz(text: str, num_questions: int = 5, essay: bool = False) -> Lis
         ("system", "Você é um assistente que cria perguntas objetivas ou dissertativas, sempre escolha SOMENTE UM TIPO DE QUESTÃO. Sempre haverá uma única alternativa correta para questões objetivas."),
         ("user", f"Crie {num_questions} perguntas de quiz sobre o seguinte texto:\n\n{text}. As questões são dissertativas: {essay}.")
     ])
-    chain = prompt | llm
+    chain = prompt | llm_study
     response = chain.invoke({})
     typer.echo("Questões geradas com sucesso!")
     return [line.strip() for line in response.split("\n") if line.strip()]
@@ -46,6 +59,6 @@ def answer_asking(asking: str, context: str) -> str:
         ("system", "Você é um assistente de estudos."),
         ("user", f"Com base no seguinte contexto:\n\n{context}\n\nResponda: {asking}")
     ])
-    chain = prompt | llm
+    chain = prompt | llm_study
     typer.echo("Pergunta respondida com sucesso!")
     return chain.invoke({})
