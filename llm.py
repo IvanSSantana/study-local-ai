@@ -66,3 +66,5 @@ prompt_rag = ChatPromptTemplate.from_messages([
 docs_chain = create_stuff_documents_chain(llm=llm_screening, prompt=prompt_rag)
 
 main_chain = create_retrieval_chain(vectorstore.as_retriever(), docs_chain)
+
+#TODO: Configurar corretamente LLM + Retriever para nodes
