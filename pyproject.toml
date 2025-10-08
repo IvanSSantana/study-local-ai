@@ -1,7 +1,7 @@
 [project]
-name = "study-local-ai"
+name = "study_local_ai"
 version = "0.1.0"
-description = "Add your description here"
+description = "A project of a local AI for studies."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

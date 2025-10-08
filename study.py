@@ -1,15 +1,14 @@
 """
-study.py
 Módulo de estudo interativo.
 Aqui ficam as funções que conversam com o modelo de IA (via Ollama + LangChain).
 """
 
 from typing import List
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM
 from langchain.prompts import ChatPromptTemplate
 
 # Instância do modelo local
-llm = Ollama(model="llama2")
+llm = OllamaLLM(model="llama2")
 
 def gerar_resumo(texto: str) -> str:
     """

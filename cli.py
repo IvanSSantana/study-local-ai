@@ -26,4 +26,8 @@ def ask(query: str):
    typer.echo(response["answer"])
 
 if __name__ == "__main__":
-   app()
+   try:
+      app()
+   except typer.BadParameter as error:
+      typer.echo(f"Erro de parâmetro: {error}")
+      typer.Exit()
