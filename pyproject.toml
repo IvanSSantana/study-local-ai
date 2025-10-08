@@ -10,6 +10,7 @@ dependencies = [
     "langchain-chroma>=0.2.6",
     "langchain-community>=0.3.30",
     "langchain-ollama>=0.3.8",
+    "langgraph>=0.6.8",
     "ollama>=0.6.0",
     "pdfplumber>=0.11.7",
     "pytest>=8.4.2",
