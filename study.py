@@ -3,13 +3,12 @@ Módulo de estudo interativo.
 Aqui ficam as funções e nodes que conversam com o modelo de IA (via Ollama + LangChain + LangGraph).
 """
 
-from llm import llm_study, screening, prompt_rag
+from llm import llm_study, screening, call_ai_RAG
 from typing import List, TypedDict, Optional, Dict
-from langchain_ollama.llms import OllamaLLM
 from langchain.prompts import ChatPromptTemplate
 import typer
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total = False):
     user_message: str
     screening: Dict
     response: Optional[str]
@@ -17,26 +16,29 @@ class AgentState(TypedDict):
     final_action: str
 
 def node_screening(state: AgentState) -> AgentState:
-    print("Executando nó de triagem...")     
-    return {"screening": screening(state["user_message"])}
+    typer.echo("Executando nó de triagem...")    
+
+    user_message = state.get("user_message", "") # Pega o campo user_message e define vazio como valor padrão em caso de inexistência da chave no dicionário. Método do Python
+    return {"screening": screening(user_message)}
 
 def node_summarize(state: AgentState) -> AgentState:
-    print("Executando nó de resumo...")
-    response_rag = prompt_rag(state["user_message"])
-    #TODO: Concluir após configuração completa do LLM
+    typer.echo("Executando nó de resumo...")
 
-def generate_summarize(text: str) -> str:
-    """
-    Recebe um texto longo e gera um resumo organizado.
-    """
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "Você é um assistente que cria resumos claros e objetivos."),
-        ("user", f"Resuma o seguinte texto em tópicos:\n\n{text}")
-    ])
-    chain = prompt | llm_study
-    typer.echo("Resumo gerado com sucesso!")
-    return chain.invoke({})
+    user_message = state.get("user_message", "")
+    response_rag = call_ai_RAG(user_message, "summarize")
+    
+    updated_state: AgentState = {
+        "response": response_rag["answer"],
+        "sucess_rag": response_rag["sucess_rag"]
+    }
 
+    if response_rag["sucess_rag"]:
+        updated_state["final_action"] = "RESUMO"
+
+    typer.echo("Nó de resumo concluído.")
+    return updated_state
+
+#TODO: Transformar todas funções abaixo em nodes.
 def generate_quiz(text: str, num_questions: int = 5, essay: bool = False) -> List[str]:
     """
     Cria um quiz com base no texto. Retorna uma lista de perguntas. #TODO: Implementar mais tipos de questões (Ex: V ou F)
@@ -53,7 +55,7 @@ def generate_quiz(text: str, num_questions: int = 5, essay: bool = False) -> Lis
 def answer_asking(asking: str, context: str) -> str:
     """
     O usuário faz uma pergunta. A IA responde com base no contexto do PDF.
-    (No futuro o contexto virá do 'vectorstore.py' via ChromeDB).
+    (No futuro o contexto virá do 'vectorstore.py' via ChromaDB).
     """
     prompt = ChatPromptTemplate.from_messages([
         ("system", "Você é um assistente de estudos."),

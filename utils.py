@@ -1,1 +1,1 @@
-#Fazer mais pra frente
+#TODO: Funções futuras como salvar respostas em arquivos .txt, etc.
